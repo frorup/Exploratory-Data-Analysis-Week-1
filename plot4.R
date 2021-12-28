@@ -11,7 +11,7 @@ fileUrl   <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_po
 destZip   <- "household_power_consumption.zip"
 fromDate  <- as.Date("2007-02-01")
 toDate    <- as.Date("2007-02-02")
-par(mfrow = c(1,1)) ## Only 1 plot
+
 
 ## =============================================================================
 ##  Download file, unzip and reading the data. 
@@ -25,13 +25,27 @@ file.remove("household_power_consumption.txt")
 data$Date <- as.Date(data$Date, "%d/%m/%Y")
 data <- filter(data, Date >= fromDate & Date <= toDate)
 
-## =============================================================================
-##  Creating the histogram - Plot 1
-## =============================================================================
-hist(data$Global_active_power, main = "Global Active Power", xlab = "Global Active Power (kilowatts)", col = "Red")
+## Create the date time data using existing variable to save space. 
+data$Time <- as.POSIXct(strptime(paste(data$Date,data$Time), "%Y-%m-%d %H:%M:%S"))
+
 
 ## =============================================================================
-##  Copying the visual plot to a png file 
+##  Creating the histogram - Plot 4
 ## =============================================================================
-dev.copy(png, file = "plot1.png", height = 480, width = 480)
+par(mfrow = c(2, 2))
+
+plot(data$Global_active_power ~ data$Time, type = "l", ylab = "Global Active Power", xlab = "")
+
+plot(data$Voltage ~ data$Time, type = "l", ylab = "Voltage", xlab = "datetime")
+
+plot(data$Sub_metering_1 ~ data$Time, type = "l", ylab = "Energy sub metering", xlab = "")
+lines(data$Sub_metering_2 ~ data$Time, col = "Red")
+lines(data$Sub_metering_3 ~ data$Time, col = "Blue")
+legend("topright", lty = 1, col = c("black", "red", "blue"), 
+       legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+       bty = "n")
+
+plot(data$Global_reactive_power ~ data$Time, type = "l", ylab = "Global_reactive_power", xlab = "datetime")
+
+dev.copy(png, file = "plot4.png", height = 480, width = 480)
 dev.off()
